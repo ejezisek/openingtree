@@ -1,6 +1,7 @@
 Feature: Opening Tree Entry
   Background:
     When set "directory" to "tests/uiTests/"
+  @loadGameTypes
   @select-source
   @copy-fen
   @tab5-elements
@@ -9,11 +10,12 @@ Feature: Opening Tree Entry
   Scenario: Open the url
     When set:
       | url                   |
-      | http://testHost:5000       |
+      | http://localhost:5000 |
     And open
   @clicktabs
   Scenario Outline:  Make sure tab <index> is clickable and the active text is <expected>
-    And click tab <index>
+    And get tab <index>
+    And click it
     And get active tab
     And get text from it
     And it is equal to "<expected>"
@@ -24,19 +26,10 @@ Feature: Opening Tree Entry
       | 3     | Opening book |
       | 4     | Report       |
       | 5     | Controls     |
-  @select-source
-  Scenario: Minimize source
-    When click tab 1
-    And get active tab
-    And get text from it
-    When get multi tab 2
-    And click it
+
   @select-source
   Scenario Outline: Select source <source>
-    When get multi tab 2
-    And click it
-    When get source "<source>"
-    And click it
+    When select source "<source>"
     Examples:
       | source     |
       | lichess    |
@@ -48,10 +41,11 @@ Feature: Opening Tree Entry
       | pgnfile    |
   @copy-fen
   @skipci
-  # Skip this in CI because clipboardy is difficult to get to work there.  
+  # Skip this in CI because clipboardy is difficult to get to work there.
   Scenario: Copy fen
     # Click the report tab.
-    And click tab 4
+    And get tab 4
+    And click it
     And get id "fenField"
     And click it
     And get clipboard content
@@ -59,7 +53,8 @@ Feature: Opening Tree Entry
 
   @tab5-elements
   Scenario Outline: Perform <text> from tab 5 (controls)
-    When click tab 5
+    When get tab 5
+    And click it
     And get element from text "<text>"
     And click it
     Examples:
@@ -69,10 +64,11 @@ Feature: Opening Tree Entry
       | Starting position |
       | Computer analysis |
       | Light mode        |
-      | Dark mode        |
+      | Dark mode         |
   @lichess-analysis
   Scenario: Click lichess analysis
-      When click tab 5
+    When get tab 5
+    And click it
     And get element from text "Computer analysis"
     And click it
     And switch tab 1
@@ -80,3 +76,40 @@ Feature: Opening Tree Entry
     And get element from text "FEN"
     And click it
     And switch tab 0
+
+  @loadGameTypes
+  Scenario Outline: Load at least <minGames> games for variant <gameType>
+    When get tab 1
+    And click it
+    And get element from text "change"
+    And click it
+    And get element from text "<gameType>"
+    And click it
+    And select source "<source>"
+    And get id "playerNameTextBox"
+    And set text "<playerName>" to it
+    And get continue element 3
+    And click it
+    And get element from text "<color>"
+    And click it
+    And get continue element 4
+    And click it
+    And get element from text 'Analyze games'
+    And click it
+    And wait 2000 milliseconds
+    And screenshot
+    And get element from text "stop"
+    And click it
+    And wait 7000 milliseconds
+    And get element containing text "<color> games"
+    And get text from it
+    And set "numGames" to "${lastRun.replace(/[^\d]+/g,'')}"
+    Then item "numGames" > <minGames>
+    Examples:
+      | gameType         | playerName  | color | source   | minGames |
+      | Racing kings     | royalmaniac | White | lichess  | 20       |
+      | Standard rules   | EricRosen   | White | lichess  | 30       |
+      | Standard rules   | IMRosen     | Black | chesscom | 5        |
+      | Crazyhouse       | blitzbullet | White | lichess  | 10       |
+      | Three check      | catask      | White | lichess  | 5        |
+      | King of the hill | Shprot86    | White | lichess  | 5        |

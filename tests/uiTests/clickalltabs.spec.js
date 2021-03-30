@@ -2,66 +2,122 @@
 const { Builder, By, Key, until } = require('selenium-webdriver')
 
 const { MAFWhen, performJSONObjectTransform } = require('@ln-maf/core')
-const {setDefaultTimeout, When, BeforeAll, AfterAll } = require('@cucumber/cucumber')
+const { setDefaultTimeout, When, BeforeAll, AfterAll } = require('@cucumber/cucumber')
 setDefaultTimeout(60 * 1000);
 
 let driver
-BeforeAll( async function() {
+BeforeAll(async function () {
   driver = await new Builder().forBrowser('firefox').build()
 })
-When('switch tab {int}', async function(tab) {
+When('switch tab {int}', async function (tab) {
   let handles = await driver.getAllWindowHandles();
-  var item=driver.switchTo()
+  var item = driver.switchTo()
   await item.window(handles[tab])
   await takeScreenshot.call(this)
 })
-When('open', async function() {
-  const {url} = this.results
+When('open', async function () {
+  const { url } = this.results
   await driver.get(url)
   await takeScreenshot.call(this)
 })
-AfterAll( async function() {
+AfterAll(async function () {
   await driver.quit()
 })
 
 async function takeScreenshot() {
-  var screen=await driver.takeScreenshot()
-  this.attach(screen, 'image/png' )
+  var screen = await driver.takeScreenshot()
+  this.attach(screen, 'image/png')
 
 }
-MAFWhen('get text from {jsonObject}', async function(obj) {
-  obj=performJSONObjectTransform.call(this, obj)
+async function getContinueElement(continueNum) {
+  return await driver.findElement(By.xpath(`(//*[@class='MuiButton-label' and text()='Continue'])[${continueNum}]`))
+}
+/**
+ * There are multipel continue elements and I was unable to identify a good identifier for them.
+ */
+MAFWhen('get continue element {int}', getContinueElement)
+
+
+MAFWhen('get text from {jsonObject}', async function (obj) {
+  obj = performJSONObjectTransform.call(this, obj)
   return await obj.getText()
 })
-MAFWhen('get active tab', async function() {
-   return await driver.findElement(By.css(`a.active`))
+MAFWhen('get active tab', async function () {
+  return await driver.findElement(By.css(`a.active`))
 })
-MAFWhen('get element from text {string}', async function(text) {
+MAFWhen('get element containing text {string}', async function (text) {
+  return await driver.findElement(By.xpath(`//*[contains(text(),'${text}')]`))
+})
+
+MAFWhen('get element from text {string}', async function (text) {
   return await driver.findElement(By.xpath(`//*[text()='${text}']`))
 })
-MAFWhen('get source {string}', async function(str) {
-  return await driver.findElement(By.xpath(`//*[@class='MuiIconButton-label']/*[@value='${str}']`))
+
+MAFWhen('select source {string}', async function (str) {
+  try {
+    var tab=await getTab(1)
+    await tab.click()
+
+  } catch (e) {}
+  var multitab = await getMultiTab(2)
+  var expanded = await multitab.getAttribute('aria-expanded')
+  if (expanded === "false") {
+    await multitab.click()
+  }
+  var sourceEl = await getSource(str)
+  try {
+    await sourceEl.click()
+  } catch (e) {
+  }
+  try {
+    var cont = await getContinueElement(2)
+    await cont.click()
+  } catch (e) { }
+
+  await takeScreenshot.call(this)
+
+  // return await driver.findElement(By.xpath(`//*[@class='MuiIconButton-label']/*[@value='${str}']`))
 })
-MAFWhen('get clipboard content', async function() {
+async function getSource(str) {
+  return await driver.findElement(By.xpath(`//*[@class='MuiIconButton-label']/*[@value='${str}']`))
+}
+MAFWhen('get source {string}', getSource)
+MAFWhen('get clipboard content', async function () {
   const clipboardy = require('clipboardy');
   return clipboardy.readSync()
 })
-When('click {jsonObject}', async function(obj) {
-  obj=performJSONObjectTransform.call(this, obj)
-  var res= await obj.click()
+When('try click {jsonObject}', async function (obj) {
+  try {
+    obj = performJSONObjectTransform.call(this, obj)
+    var res = await obj.click()
+  } catch (e) { }
   await takeScreenshot.call(this)
-  return res
+})
+
+When('click {jsonObject}', async function (obj) {
+  obj = performJSONObjectTransform.call(this, obj)
+  var res = await obj.click()
+  await takeScreenshot.call(this)
 })
 //Note index starts at one for xpath
-MAFWhen('get multi tab {int}', async function(index) {
+async function getMultiTab(index) {
   return await driver.findElement(By.xpath(`(//*[@id='panel1c-header'])[${index}]`))
-})
-MAFWhen('get id {string}', async function(id) {
+}
+
+MAFWhen('get multi tab {int}', getMultiTab)
+MAFWhen('get id {string}', async function (id) {
   return await driver.findElement(By.xpath(`(//*[@id='${id}'])`))
 })
-When('click tab {int}', async function(index) {
+When('screenshot', takeScreenshot)
+async function getTab(index) {
   // await driver.findElement(By.css(".fa-list")).click()
-    await driver.findElement(By.xpath(`(//*[@class='nav nav-tabs']/*)[${index}]`)).click()  
-    await takeScreenshot.call(this)
-  })
+  return await driver.findElement(By.xpath(`(//*[@class='nav nav-tabs']/*)[${index}]`))
+}
+MAFWhen('get tab {int}', getTab)
 
+When('set text {string} to {jsonObject}', async function (string, obj) {
+  obj = performJSONObjectTransform.call(this, obj)
+  await obj.clear()
+  await obj.sendKeys(string)
+  await takeScreenshot.call(this)
+});
