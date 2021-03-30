@@ -9,7 +9,7 @@ Feature: Opening Tree Entry
   Scenario: Open the url
     When set:
       | url                   |
-      | http://testHost       |
+      | http://testHost:5000       |
     And open
   @clicktabs
   Scenario Outline:  Make sure tab <index> is clickable and the active text is <expected>
