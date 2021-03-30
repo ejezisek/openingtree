@@ -47,6 +47,8 @@ Feature: Opening Tree Entry
       | eventdb    |
       | pgnfile    |
   @copy-fen
+  @skipci
+  # Skip this in CI because clipboardy is difficult to get to work there.  
   Scenario: Copy fen
     # Click the report tab.
     And click tab 4
