@@ -9,7 +9,7 @@ Feature: Opening Tree Entry
   Scenario: Open the url
     When set:
       | url                   |
-      | http://127.0.0.1:5000 |
+      | http://openingtree.com |
     And open
   @clicktabs
   Scenario Outline:  Make sure tab <index> is clickable and the active text is <expected>
