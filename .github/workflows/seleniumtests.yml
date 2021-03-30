@@ -44,6 +44,7 @@ jobs:
         env:
           HUB_HOST: hub
           HUB_PORT: 4444
+          HOST: http://testHost:5000
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2

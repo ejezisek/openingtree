@@ -10,7 +10,7 @@ Feature: Opening Tree Entry
   Scenario: Open the url
     When set:
       | url                   |
-      | http://localhost:5000 |
+      | ${process.env.HOST} |
     And open
   @clicktabs
   Scenario Outline:  Make sure tab <index> is clickable and the active text is <expected>
