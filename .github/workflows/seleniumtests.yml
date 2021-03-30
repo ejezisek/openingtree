@@ -41,7 +41,7 @@ jobs:
       - run: yarn build
       - run: npm i -g serve
       - run: serve -s build &
-      - run: curl http://127.0.0.1:5000
+      - run: curl http://testHost:5000
       - run: EXTRAS=--publish npm run testUI
         env: 
           SELENIUM_REMOTE_URL: http://hub:4444/wd/hub
