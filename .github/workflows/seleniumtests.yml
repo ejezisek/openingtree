@@ -59,8 +59,7 @@ jobs:
       - run: npm i -g yarn
       - run: yarn
       - run: npm i -g serve
-      - run: EXTRAS="--publish -t 'not @skipci'" npm run testUI
-      
+      - run: EXTRAS="--publish npm run testciUI
         env: 
           SELENIUM_REMOTE_URL: http://hub:4444/wd/hub
 
