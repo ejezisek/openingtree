@@ -34,6 +34,6 @@ jobs:
       - run: curl http://testHost:5000
       - run: EXTRAS=--publish npm run testUI
         env: 
-          SELENIUM_REMOTE_URL: http://hub/wd/hub
+          SELENIUM_REMOTE_URL: http://hub:4444/wd/hub
 
 
