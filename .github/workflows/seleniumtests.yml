@@ -9,8 +9,6 @@ on: push
 jobs:
   # This workflow contains a single job called "build"
   build:
-
-
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
     strategy:
@@ -19,6 +17,15 @@ jobs:
     container:
       image: node:14.4
       options: --network-alias testHost
+    services:
+      hub:
+        image: selenium/hub:3.141.59-gold
+      firefox:
+        image: selenium/node-firefox:3.141.59-gold
+        env:
+          HUB_HOST: hub
+          HUB_PORT: 4444
+
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
@@ -40,5 +47,6 @@ jobs:
       - run: curl http://127.0.0.1:5000
       - run: EXTRAS=--publish npm run testUI
         env: 
-          SELENIUM_REMOTE_URL: http://localhost:4444/wd/hub
+          SELENIUM_REMOTE_URL: http://hub:4444/wd/hub
+
 
