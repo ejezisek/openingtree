@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: CI
+name: Selenium Tests
 
 # Controls when the action will run. 
 on: push
@@ -31,7 +31,9 @@ jobs:
         env: 
           SELENIUM_REMOTE_URL: http://hub:4444/wd/hub
   test:
+    name: "TEST Selenium" 
     runs-on: ubuntu-latest
+    needs: build
     container:
       image: mohamnag/ubuntu-git
       options: --network-alias testHost
