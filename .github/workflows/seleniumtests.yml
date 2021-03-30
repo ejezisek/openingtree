@@ -28,8 +28,7 @@ jobs:
         with:
           name: build
           path: build
-        env: 
-          SELENIUM_REMOTE_URL: http://hub:4444/wd/hub
+
   test:
     name: "TEST Selenium" 
     runs-on: ubuntu-latest
@@ -62,6 +61,7 @@ jobs:
       - run: npm i -g serve
       - run: serve -s build &
       - run: EXTRAS=--publish npm run testUI
-
+        env: 
+          SELENIUM_REMOTE_URL: http://hub:4444/wd/hub
 
 
