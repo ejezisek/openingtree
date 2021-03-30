@@ -34,7 +34,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     container:
-      image: mohamnag/ubuntu-git
+      image: node:14.4
       options: --network-alias testHost
     services:
       hub:
